@@ -1,45 +1,58 @@
-{% set name = "<PLEASE ADD PKG NAME>" %}
-{% set version = "<PLEASE ADD PKG VERSION>" %}
+{% set name = "frostwork" %}
+{% set version = "0.2.2" %}
 
 package:
-  name: {{ name|lower }}
+  name: {{ name }}
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: <sha256>
+  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: da4ac35a703b68a6fd1ad92dba53abeed4d38bcfaa5125b6f7f50b4405de7066
 
 build:
   number: 0
   script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
-  skip: True  # [py<38]
+  entry_points:
+    - frostwork-audit = frostwork.audit:main
+  skip: true  # [py<310]
 
 requirements:
+  build:
+    - {{ stdlib('c') }}
+    - {{ compiler('c') }}
+    - {{ compiler('rust') }}
   host:
     - python
+    - maturin >=1.9,<2
     - pip
   run:
     - python
+    - typing_extensions >=4.13
+  run_constrained:
+    # webpoet
+    - web-poet >=0.24.1,<0.25
 
 test:
   imports:
-    - {{ name.replace('-', '.') }}
-  requires:
-    - pip
+    - frostwork
   commands:
     - pip check
+    - frostwork-audit --help
+  requires:
+    - pip
 
 about:
-  home: <PLEASE ADD HOME URL>
-  summary: <PLEASE ADD SUMMARY>
+  home: https://github.com/scrapy/frostwork
+  license: Apache-2.0
+  license_family: Apache
+  license_file: LICENSE
+  summary: Treeless, one-pass HTML extraction — CSS/XPath selectors matched on a streaming scan, no DOM.
   description: |
-    <PLEASE ADD DESCRIPTION>
-  license: <PLEASE ADD LICENSE>
-  license_family: <PLEASE ADD LICENSE_FAMILY>
-  license_file: <PLEASE_ADD_LICENSE_FILE>
-  dev_url: <PLEASE ADD DEV URL>
-  doc_url: <PLEASE ADD DOC URL>
+    Frostwork compiles a set of CSS or XPath selectors and extracts their values in one scan of an HTML response.
+    Reuse the schema across Scrapy callbacks, web-poet pages or standalone code.
+    Working memory tracks parser state, pending matches and returned values, without storing a document tree.
+  doc_url: https://github.com/scrapy/frostwork/blob/main/docs/PYTHON.md
 
 extra:
   recipe-maintainers:
-    - Jrice1317
+    - avetr-work
